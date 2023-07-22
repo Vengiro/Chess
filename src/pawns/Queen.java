@@ -2,7 +2,7 @@ package pawns;
 
 public class Queen extends Pawns {
     @Override
-    public boolean canMove(int x, int y) {
+    public boolean canMove(int newPos) {
         return false;
     }
 }
