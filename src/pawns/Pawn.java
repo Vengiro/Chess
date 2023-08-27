@@ -10,7 +10,8 @@ public class Pawn extends Pawns {
 
     @Override
     public boolean canMove(int newPos) {
-        return newPos == getPosition() + 1;
+        if(isWhite()) return newPos == getPosition() + 8;
+        else return newPos == getPosition() - 8;
     }
 
     @Override
