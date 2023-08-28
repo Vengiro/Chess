@@ -1,8 +1,8 @@
 package pawns;
 
 public class Pawn extends Pawns {
-    private final String PB = "♟";
-    private final String PW = "♙";
+    private final String PB = "♙";
+    private final String PW = "♟";
 
     public Pawn(boolean isWhite, int position) {
         super(isWhite, position);

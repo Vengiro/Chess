@@ -11,7 +11,8 @@ public class Queen extends Pawns {
 
     @Override
     public boolean canMove(int newPos) {
-        return false;
+        return (getPosition() - newPos) % 8 == 0 || (getPosition() - newPos) / 8 == 0 ||
+               (getPosition() - newPos)%7 == 0 || (getPosition() - newPos)%9 == 0;
     }
 
     @Override

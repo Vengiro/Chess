@@ -13,14 +13,12 @@ import javafx.scene.text.Text;
 import pawns.Pawns;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
 public final class Board {
 
-    private final GameState gameState = new GameState();
+    private final GameState gameState;
     private final BorderPane pane;
     private int lastSelected = -1;
     private int selected = -1;
@@ -32,11 +30,10 @@ public final class Board {
 
 
 
-    public Board() throws IOException {
+    public Board(GameState gs) throws IOException {
+        this.gameState = gs;
         Group g = BoardBuilder();
         this.pane = new BorderPane(g);
-
-
     }
 
     public Pane pane() {
@@ -56,34 +53,7 @@ public final class Board {
             for (int x = 0; x < 8; x++) {
                 Rectangle rectangle = new Rectangle(CELL_SIZE, CELL_SIZE);
 
-                /*rectangle.setOnMouseClicked(e -> {
-                    lastSelected = selected;
 
-                    for (int i = 0; i < 64; i++) {
-                        Group inGroup = (Group) g.getChildren().get(i);
-                        if(inGroup.getChildren().contains(rectangle)) selected = i;
-                        Rectangle inRectangle = (Rectangle) inGroup.getChildren().get(0);
-                        if ((i + i/8)% 2 == 0) inRectangle.setFill(Color.BROWN);
-                        else inRectangle.setFill(Color.WHITE);
-                    }
-                    if(lastSelected != -1) {
-                        if(!(rowContent[lastSelected].get().equals(GameState.EMPTY))) {
-                            pawns.get(lastSelected).move(selected);
-                            gameState.updateBoard();
-                            pawns.sort(Comparator.comparingInt(Pawns::getPosition));
-
-                            for (int i = 0; i < 64; i++) {
-                                rowContent[i].setValue(gameState.getBoard()[i]);
-                            }
-                        }
-                    }
-                    System.out.println(selected);
-                    System.out.println(lastSelected);
-                    rectangle.setFill(Color.RED);
-
-
-
-                });*/
 
                 if ((x + y) % 2 == 0) rectangle.setFill(Color.BROWN);
                 else rectangle.setFill(Color.WHITE);
@@ -95,6 +65,7 @@ public final class Board {
                 t.setOnMouseClicked(e -> {
                     lastSelected = selected;
                     selected = map.get(t);
+                    //reset color
                     if(lastSelected != -1){
                         Group lastGroup = (Group) g.getChildren().get(lastSelected);
                         Text lastText = (Text) lastGroup.getChildren().get(1);
@@ -104,10 +75,18 @@ public final class Board {
                         } else {
                             lastRectangle.setFill(Color.WHITE);
                         }
-
+                        //move pawn
                         if(!lastText.textProperty().get().equals(GameState.EMPTY) &&
-                            pawns.get(lastSelected).move(selected)){
-                            if(pawns.get(selected) != null && lastSelected != -1) {
+                          pawns.get(lastSelected).canMove(selected) &&
+                          (pawns.get(lastSelected).isWhite() ^ gameState.isTurnEven()) &&
+                          !isThereObstacle(lastSelected, selected, pawns.get(lastSelected).isWhite())){
+
+
+                            pawns.get(lastSelected).move(selected);
+                            gameState.nextTurn();
+
+                            //kill pawn
+                            if(pawns.get(selected) != null){
                                 pawns.get(selected).die();
                             }
                             gameState.updateBoard();
@@ -118,12 +97,7 @@ public final class Board {
                     rectangle.setFill(Color.RED);
 
                 });
-                /*for (int i = 0; i < 64; i++) {
-                    rowContent[i].addListener((observable, oldValue, newValue) -> {
-                        t.setText(newValue);
-                    });
 
-                }*/
 
                 Group g1 = new Group(rectangle, t);
                 g1.setTranslateX(x * CELL_SIZE);
@@ -132,6 +106,80 @@ public final class Board {
             }
         }
         return g;
+    }
+
+
+    private boolean isThereObstacle(int pos, int des, boolean isWhite){
+
+
+        Map<Integer, Pawns> pawns = gameState.getPawnsAndPos();
+
+        if((des - pos)% 8 ==0){
+            if(des > pos) {
+                for (int i = pos + 8; i <= des; i += 8) {
+                    if (pawns.get(i) != null && pawns.get(i).isWhite() == isWhite) {
+                        return true;
+                    }
+                }
+            }
+            else{
+                for(int i = pos - 8; des <= i; i-=8) {
+                    if (pawns.get(i) != null && pawns.get(i).isWhite() == isWhite) {
+                        return true;
+                    }
+                }
+            }
+        }
+        else if((des - pos)% 9 ==0){
+            if(des > pos) {
+                for (int i = pos + 9; i <= des; i += 9) {
+                    if (pawns.get(i) != null && pawns.get(i).isWhite() == isWhite) {
+                        return true;
+                    }
+                }
+            }
+            else{
+                for(int i = pos - 9; des <= i; i-=9) {
+                    if (pawns.get(i) != null && pawns.get(i).isWhite() == isWhite) {
+                        return true;
+                    }
+                }
+            }
+        }
+        else if(((des %8 == 0 && des + 7 == pos)|| (des %8 == 7 && des - 7 == pos))) {
+            if(des > pos) {
+                for (int i = pos + 1; i <= des; i += 1) {
+                    if (pawns.get(i) != null && pawns.get(i).isWhite() == isWhite) {
+                        return true;
+                    }
+                }
+            }
+            else{
+                for(int i = pos - 1; des <= i; i-=1) {
+                    if (pawns.get(i) != null && pawns.get(i).isWhite() == isWhite) {
+                        return true;
+                    }
+                }
+            }
+        }
+        else if((des - pos)% 7 ==0 ){
+            if(des > pos) {
+                for (int i = pos + 7; i <= des; i += 7) {
+                    if (pawns.get(i) != null && pawns.get(i).isWhite() == isWhite) {
+                        return true;
+                    }
+                }
+            }
+            else{
+                for(int i = pos - 7; des <= i; i-=7) {
+                    if (pawns.get(i) != null && pawns.get(i).isWhite() == isWhite) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
 }

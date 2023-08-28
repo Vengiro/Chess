@@ -11,7 +11,8 @@ public class Knight extends Pawns {
 
     @Override
     public boolean canMove(int newPos) {
-        return false;
+        return Math.abs(getPosition() - newPos) == 6 || Math.abs(getPosition() - newPos) == 10 ||
+                Math.abs(getPosition() - newPos) == 15 || Math.abs(getPosition() - newPos) == 17;
     }
 
     @Override

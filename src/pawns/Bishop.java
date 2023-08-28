@@ -11,7 +11,12 @@ public class Bishop extends Pawns {
 
     @Override
     public boolean canMove(int newPos) {
-        return false;
+        int min = Math.min(getPosition(), newPos);
+        int max = Math.max(getPosition(), newPos);
+        int diff = max - min;
+        return diff % 7 == 0 || diff % 9 == 0 &&
+                ! ((getPosition()%8 == 0 && getPosition() + 8 == newPos)
+                || (getPosition()%8 == 7 && getPosition() - 8 == newPos));
     }
 
     @Override

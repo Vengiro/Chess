@@ -21,10 +21,8 @@ public abstract class Pawns {
     public int getPosition() {
         return position;
     }
-    public boolean move(int newPos) {
-        boolean canMove = canMove(newPos);
+    public void move(int newPos) {
         if(canMove(newPos)) position = newPos;
-        return canMove;
     }
 
     public boolean isWhite() {

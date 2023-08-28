@@ -9,6 +9,7 @@ public class GameState {
     //Map<position, pawn>
     private final Map< Integer ,Pawns> pawns = new HashMap<>();
     public static final String EMPTY = "   ";
+    private int turn = 0;
 
     public GameState() {
         initBoard();
@@ -82,5 +83,12 @@ public class GameState {
             Pawns pawn = pawns.get(pos);
             board[pos] = pawn.getSymbol();
         }
+    }
+
+    public boolean isTurnEven() {
+        return turn % 2 == 0;
+    }
+    public void nextTurn() {
+        turn++;
     }
 }
