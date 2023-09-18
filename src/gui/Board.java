@@ -10,6 +10,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import pawns.Pawn;
 import pawns.Pawns;
 
 import java.io.IOException;
@@ -81,24 +82,25 @@ public final class Board {
                           (pawns.get(lastSelected).isWhite() ^ gameState.isTurnEven()) &&
                           !isThereObstacle(lastSelected, selected, pawns.get(lastSelected).isWhite())){
 
+                            if(pawns.get(lastSelected) instanceof Pawn) {
 
-                            pawns.get(lastSelected).move(selected);
-                            gameState.nextTurn();
-
-                            //kill pawn
-                            if(pawns.get(selected) != null){
-                                pawns.get(selected).die();
+                                if (pawns.get(selected) != null &&
+                                ((Pawn) pawns.get(lastSelected)).goDiagonal(selected)) {
+                                    moveAndUpdate(pawns, lastSelected, selected, lastText, t);
+                                }
+                                else if(pawns.get(selected) == null &&
+                                        !((Pawn) pawns.get(lastSelected)).goDiagonal(selected)){
+                                    moveAndUpdate(pawns, lastSelected, selected, lastText, t);
+                                }
                             }
-                            gameState.updateBoard();
-                            lastText.textProperty().setValue(gameState.getBoard()[lastSelected]);
-                            t.textProperty().setValue(gameState.getBoard()[selected]);
+                            else {
+                                moveAndUpdate(pawns, lastSelected, selected, lastText, t);
+                            }
                         }
                     }
                     rectangle.setFill(Color.RED);
 
                 });
-
-
                 Group g1 = new Group(rectangle, t);
                 g1.setTranslateX(x * CELL_SIZE);
                 g1.setTranslateY(y * CELL_SIZE);
@@ -180,6 +182,20 @@ public final class Board {
         }
 
         return false;
+    }
+
+    private void moveAndUpdate(Map<Integer, Pawns> pawns, int lastSelected, int selected, Text lastText, Text t){
+        pawns.get(lastSelected).move(selected);
+        gameState.nextTurn();
+
+        //kill pawn
+        if(pawns.get(selected) != null){
+            pawns.get(selected).die();
+        }
+        gameState.updateBoard();
+        lastText.textProperty().setValue(gameState.getBoard()[lastSelected]);
+        t.textProperty().setValue(gameState.getBoard()[selected]);
+
     }
 
 }
